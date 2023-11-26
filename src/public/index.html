@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paypal Checkout</title>
+  <style>
+    #paypal-button-container {
+      display: none; 
+    }
+  </style>
+</head>
+<body>
+
+<div id="product-details">
+  <h2>Product Details</h2>
+  <p>Dinosaur</p>
+  <img src='https://img.olhardigital.com.br/wp-content/uploads/2023/08/espinossauro-da-pedra-branca.jpg' style="width: 100px; height: 100px;"/>
+  <p>Item Number: 123</p>
+  <p>Price: $40</p>
+</div>
+
+<h2>Buyer's Information</h2>
+
+<form id="shippingForm">
+  <label for="firstname">First Name:</label>
+  <input type="name" id="firstname" placeholder="John" required />
+
+  <label for="lastname">Last Name:</label>
+  <input type="name" id="lastname" placeholder="Doe" required />
+
+  <label for="phone">Phone:</label>
+  <input type="tel" id="phone" placeholder="555-7858" required />
+
+  <label for="email">Email</label>
+  <input type="email" id="email" placeholder="somebody@something.com" required />
+
+  <label for="address1">Address Line 1:</label>
+  <input type="address" id="address1" placeholder="123 Main St" required />
+
+  <label for="address2">Address Line 2:</label>
+  <input type="address" id="address2" placeholder="Apt 4" />
+
+  <label for="state">State:</label>
+  <input type="state" id="state" placeholder="CA" required />
+
+  <p></p>
+  <p></p>
+
+  <label for="zip">Zip Code:</label>
+  <input type="number" id="zip" placeholder="90001" required />
+
+  <label for="country">Country:</label>
+  <input type="country" id="country" placeholder="US" required />
+
+  <p>Click Checkout Button to Proceed with Paypal Payment</p>
+  <button type="button" id="submitBtn">CHECKOUT</button>
+</form>
+
+<head>
+  <script src="https://www.paypal.com/sdk/js?client-id=AfjRE2q_p_yFjhfoCcLWg3CQPmP8ZK_oN1Cnq4XGg62iVkS5RC-QILvU3QZN5hSWjWV-Q98dKXmZWkgY"></script>
+</head>
+
+<div id="paypal-button-container"></div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('shippingForm');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault(); 
+
+   const formData = {
+      firstname: document.getElementById('firstname').value.trim(),
+      lastname: document.getElementById('lastname').value.trim(),
+      phone: document.getElementById('phone').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      address1: document.getElementById('address1').value.trim(),
+      address2: document.getElementById('address2').value.trim(),
+      state: document.getElementById('state').value.trim(),
+      zip: document.getElementById('zip').value.trim(),
+      country: document.getElementById('country').value.trim(),
+    };
+
+      saveFormData(formData);
+  });
+
+  function saveFormData(formData) {
+    fetch('/save-form-data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  }
+});
+ 
+  document.addEventListener('DOMContentLoaded', function() {
+    const submitBtn = document.getElementById('submitBtn');
+    const paypalButtonContainer = document.getElementById('paypal-button-container');
+    let paypalButtonGenerated = false;
+
+    submitBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+
+      if (isFormFilled()) {
+        if (!paypalButtonGenerated) {
+          const formData = {
+            firstname: document.getElementById('firstname').value.trim(),
+            lastname: document.getElementById('lastname').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            address1: document.getElementById('address1').value.trim(),
+            address2: document.getElementById('address2').value.trim(),
+            state: document.getElementById('state').value.trim(),
+            zip: document.getElementById('zip').value.trim(),
+            country: document.getElementById('country').value.trim(),
+          };
+          enablePayPalButton(formData);
+          paypalButtonGenerated = true;
+        }
+      } else {
+        alert('Please fill in all required fields.');
+      }
+    });
+
+    function enablePayPalButton(formData) {
+      paypal.Buttons({
+        createOrder: function(data, actions) {
+          return fetch('/create-order', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              formData: formData,
+            }),
+          })
+          .then(response => response.json())
+          .then(order => order.id);
+        },
+        onApprove: async function(data, actions) {
+          try {
+            const order = await actions.order.capture();
+            const orderId = order.id;
+            console.log('Transaction ID:', orderId);
+            localStorage.setItem('orderId', orderId);
+            const event = new Event('orderApproved');
+            document.dispatchEvent(event);
+
+            // Redirect to the "success.html" page
+            window.location.href = '/success.html';
+          } catch (error) {
+            console.error('Error on approval:', error);
+          }
+        },
+        onError: function(err) {
+          console.error(err);
+        }
+      }).render('#paypal-button-container');
+      paypalButtonContainer.style.display = 'block';
+    }
+
+    const isFormFilled = () => {
+      const requiredFields = ['firstname', 'lastname', 'phone', 'email', 'address1', 'state', 'zip', 'country'];
+      return requiredFields.every(fieldId => {
+        const value = document.getElementById(fieldId).value.trim();
+        return value !== '';
+      });
+    };
+  });
+</script>
+</body>
+</html>
