@@ -145,7 +145,7 @@
             }),
           })
           .then(response => response.json())
-          .then(order => order.id);
+          .then((order) => { return order.id; });
         },
         onApprove: async function(data, actions) {
           try {
