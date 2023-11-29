@@ -31,7 +31,7 @@ export const createOrder = async (req, res) => {
       ],
       application_context: {
         user_action: "PAY_NOW",
-        return_url: `http://localhost:4000/onapprove`,
+        return_url: `${HOST}/onapprove`,
         cancel_url: `${HOST}/cancel-order`,
       },
     };
@@ -51,8 +51,8 @@ export const createOrder = async (req, res) => {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         auth: {
-          username: CLIENT_ID,
-          password: CLIENT_SECRET,
+          username: process.env.CLIENT_ID,
+          password: process.env.CLIENT_SECRET,
         },
       }
     );
@@ -87,8 +87,8 @@ export const onApprove = async (req, res) => {
       {},
       {
         auth: {
-          username: CLIENT_ID,
-          password: CLIENT_SECRET,
+          username: process.env.CLIENT_ID,
+          password: process.env.CLIENT_SECRET,
         },
       }
     );

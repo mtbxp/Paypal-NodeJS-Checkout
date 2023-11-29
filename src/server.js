@@ -14,5 +14,5 @@ app.use(paymentRoutes);
 
 app.use(express.static(path.resolve("./src/public")));
 
-app.listen(PORT);
-console.log(PORT);
+app.listen(process.env.PORT || 4000);
+console.log("running");
