@@ -1,5 +1,5 @@
 import axios from "axios";
-import { CLIENT_ID, CLIENT_SECRET, HOST, PAYPAL_API } from "../config";
+import { CLIENT_ID, CLIENT_SECRET, HOST, PAYPAL_API } from "../config.js";
 
 export const createOrder = async (req, res) => {
   try {
