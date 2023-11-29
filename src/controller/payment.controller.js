@@ -51,8 +51,8 @@ export const createOrder = async (req, res) => {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         auth: {
-          username: process.env.CLIENT_ID,
-          password: process.env.CLIENT_SECRET,
+          username: CLIENT_ID,
+          password: CLIENT_SECRET,
         },
       }
     );
@@ -87,8 +87,8 @@ export const onApprove = async (req, res) => {
       {},
       {
         auth: {
-          username: process.env.CLIENT_ID,
-          password: process.env.CLIENT_SECRET,
+          username: CLIENT_ID,
+          password: CLIENT_SECRET,
         },
       }
     );

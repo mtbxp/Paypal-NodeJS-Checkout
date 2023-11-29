@@ -1,7 +1,6 @@
 import express from 'express'
 import paymentRoutes from './routes/payments.routes.js';
 import morgan from 'morgan';
-import {PORT} from './config.js'
 import path from 'path'
 
 
